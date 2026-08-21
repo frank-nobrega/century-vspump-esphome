@@ -1,0 +1,100 @@
+substitutions:
+  device_name: century-pump-controller
+  friendly_name: Century Pump
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  min_version: 2026.8.0
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/frank-nobrega/century-vspump-esphome
+      ref: main
+    components:
+      - century_vspump
+
+logger:
+  baud_rate: 0
+
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+uart:
+  id: pump_uart
+  tx_pin: GPIO2
+  rx_pin: GPIO1
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+
+modbus:
+  id: pump_bus
+  uart_id: pump_uart
+  role: client
+  send_wait_time: 150ms
+  turnaround_time: 5ms
+
+binary_sensor:
+  - platform: gpio
+    id: maintenance_inhibit
+    name: Maintenance Inhibit
+    device_class: safety
+    pin:
+      number: GPIO4
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+
+century_vspump:
+  id: pool_pump
+  modbus_id: pump_bus
+  address: 0x15
+  maintenance_input: maintenance_inhibit
+  update_interval: 10s
+  run:
+    name: Run
+    icon: mdi:pump
+    restore_mode: ALWAYS_OFF
+  speed:
+    name: Speed
+    unit_of_measurement: rpm
+    icon: mdi:speedometer
+    mode: slider
+  motor_rpm:
+    name: Motor Speed
+  motor_current:
+    name: Motor Current
+  input_power:
+    name: Input Power
+  output_power:
+    name: Shaft Output Power
+    entity_category: diagnostic
+  dc_bus_voltage:
+    name: DC Bus Voltage
+    entity_category: diagnostic
+  drive_temperature:
+    name: Drive Temperature
+    entity_category: diagnostic
+  fault_code:
+    name: Fault Code
+    entity_category: diagnostic
+  status:
+    name: Status
