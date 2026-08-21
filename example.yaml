@@ -41,6 +41,13 @@ uart:
   parity: NONE
   stop_bits: 1
 
+i2c:
+  id: display_bus
+  sda: GPIO5
+  scl: GPIO6
+  scan: true
+  frequency: 100kHz
+
 modbus:
   id: pump_bus
   uart_id: pump_uart
@@ -74,15 +81,19 @@ century_vspump:
     icon: mdi:pump
     restore_mode: ALWAYS_OFF
   speed:
+    id: pump_speed_demand
     name: Speed
     unit_of_measurement: rpm
     icon: mdi:speedometer
     mode: slider
   motor_rpm:
+    id: pump_motor_rpm
     name: Motor Speed
   motor_current:
+    id: pump_motor_current
     name: Motor Current
   input_power:
+    id: pump_input_power
     name: Input Power
   output_power:
     name: Shaft Output Power
@@ -94,7 +105,71 @@ century_vspump:
     name: Drive Temperature
     entity_category: diagnostic
   fault_code:
+    id: pump_fault_code
     name: Fault Code
     entity_category: diagnostic
   status:
+    id: pump_status
     name: Status
+
+display:
+  - platform: lcd_pcf8574
+    id: controller_lcd
+    i2c_id: display_bus
+    dimensions: 20x4
+    address: 0x27
+    update_interval: 1s
+    lambda: |-
+      char ip_address[network::IP_ADDRESS_BUFFER_SIZE] = "Not connected";
+      for (const auto &address : wifi::global_wifi_component->get_ip_addresses()) {
+        if (address.is_set() && address.is_ip4()) {
+          address.str_to(ip_address);
+          break;
+        }
+      }
+      const bool show_ip = (millis() / 5000) % 2 == 0;
+
+      if (id(maintenance_inhibit).state) {
+        it.print(0, 0, "MAINTENANCE ACTIVE");
+        it.print(0, 1, "Pump forced STOP");
+
+        if (id(pump_motor_rpm).has_state() && id(pump_input_power).has_state()) {
+          it.printf(0, 2, "RPM:%4.0f Power:%4.0f", id(pump_motor_rpm).state,
+                    id(pump_input_power).state);
+        } else {
+          it.print(0, 2, "Waiting for pump...");
+        }
+        if (show_ip) {
+          it.printf(0, 3, "IP:%-17.17s", ip_address);
+        } else {
+          it.print(0, 3, "Release stays OFF");
+        }
+        return;
+      }
+
+      const char *status = id(pump_status).has_state()
+                               ? id(pump_status).state.c_str()
+                               : "No communication";
+      it.printf(0, 0, "Pump: %-14.14s", status);
+
+      if (id(pump_motor_rpm).has_state()) {
+        it.printf(0, 1, "RPM:%4.0f Set:%4.0f", id(pump_motor_rpm).state,
+                  id(pump_speed_demand).state);
+      } else {
+        it.printf(0, 1, "RPM:---- Set:%4.0f", id(pump_speed_demand).state);
+      }
+
+      if (id(pump_input_power).has_state() && id(pump_motor_current).has_state()) {
+        it.printf(0, 2, "Power:%4.0fW I:%4.1fA", id(pump_input_power).state,
+                  id(pump_motor_current).state);
+      } else {
+        it.print(0, 2, "Power:----W I:----A");
+      }
+
+      if (show_ip) {
+        it.printf(0, 3, "IP:%-17.17s", ip_address);
+      } else if (id(pump_fault_code).has_state()) {
+        it.printf(0, 3, "Fault: 0x%02X", static_cast<unsigned int>(id(pump_fault_code).state));
+      } else {
+        it.print(0, 3, "Fault: unknown");
+      }

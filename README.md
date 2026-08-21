@@ -32,7 +32,7 @@ external_components:
 
 For a stable installation, replace `main` with a release tag after selecting a tested release.
 
-See [`example.yaml`](example.yaml) for a complete minimal configuration. Keep Wi-Fi credentials, API keys, and OTA passwords in the Home Assistant ESPHome `secrets.yaml` file.
+See [`example.yaml`](example.yaml) for the complete controller configuration, including the 20x4 PCF8574 LCD on GPIO5/GPIO6 at I2C address `0x27`. Adjust the pins or address if your hardware differs. Keep Wi-Fi credentials, API keys, and OTA passwords in the Home Assistant ESPHome `secrets.yaml` file.
 
 ## Acknowledgements
 
