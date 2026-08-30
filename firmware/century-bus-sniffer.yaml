@@ -32,7 +32,9 @@ uart:
   # Receive only: there is deliberately no tx_pin, Modbus component, or pump
   # component in this temporary image.
   rx_pin: GPIO1
-  baud_rate: 9600
+  # The known-working Hayward controller uses its proprietary pump protocol
+  # at 19200 baud. A 9600-baud capture aliases the transmitted bit stream.
+  baud_rate: 19200
   data_bits: 8
   parity: NONE
   stop_bits: 1
@@ -42,8 +44,8 @@ uart:
     dummy_receiver: true
     debug_prefix: "[PUMP BUS] "
     after:
-      # At 9600 baud, 5 ms is longer than the Modbus RTU 3.5-character gap
-      # and normally separates requests and replies into individual log lines.
+      # At 19200 baud one 8-N-1 character takes about 0.52 ms. This separates
+      # Hayward packets without splitting normally spaced bytes.
       timeout: 5ms
       bytes: 64
     sequence:

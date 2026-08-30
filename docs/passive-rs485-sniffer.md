@@ -6,6 +6,12 @@ address, functions, and packet format before changing the pump-control
 component. The sniffer firmware contains no Modbus client and no pump-control
 component.
 
+The Hayward controller-to-pump bus uses 19200 baud, 8 data bits, no parity,
+and one stop bit. The initial 9600-baud capture produced only `00`, `80`,
+`C0`, `E0`, `F0`, and `F8` because it sampled Hayward traffic at half its
+actual rate. Leave the known-working Hayward controller connected and capture
+again with the updated 19200-baud sniffer before deriving packet fields.
+
 The photographed Hayward display board is marked `G1-066182C-1 REV B` and
 `090072-202-01`. Its four-wire connection carries auxiliary power, common,
 RS-485 A, and RS-485 B. Follow the markings at the pump connector rather than
