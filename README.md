@@ -34,6 +34,20 @@ For a stable installation, replace `main` with a release tag after selecting a t
 
 See [`example.yaml`](example.yaml) for the complete controller configuration, including the 20x4 PCF8574 LCD on GPIO5/GPIO6 at I2C address `0x27`. Adjust the pins or address if your hardware differs. Keep Wi-Fi credentials, API keys, and OTA passwords in the Home Assistant ESPHome `secrets.yaml` file.
 
+## Gazoodle original-code trial
+
+For the next supervised pump test, use
+[`firmware/century-gazoodle-trial.yaml`](firmware/century-gazoodle-trial.yaml).
+It loads Gazoodle's unchanged component at a pinned commit and uses this
+board's ESP32-S3, GPIO2/GPIO1 RS-485 pins, 9600 baud, and address `0x15`.
+It compiled successfully with **ESPHome 2026.7.4**; pump compatibility has not
+yet been tested. Follow the [installation and test instructions](docs/gazoodle-trial.md).
+
+This trial provides Run, Speed, and RPM readings. It has **no LCD support or
+GPIO4 maintenance inhibit**. The existing `example.yaml` and adapted component
+remain available separately. This trial needs its own ESPHome 2026.7.4 build
+environment; the adapted component above targets a different ESPHome API.
+
 ## Temporary Hayward protocol capture
 
 The photographed installation uses a Hayward wall display with a Century

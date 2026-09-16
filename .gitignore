@@ -2,3 +2,7 @@
 __pycache__/
 secrets.yaml
 *.bin
+
+.venv-gazoodle/
+**/secrets.yaml
+**/.esphome/
