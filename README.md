@@ -9,6 +9,9 @@ The component supports:
 - Motor speed, current, input power, and shaft output power
 - DC bus voltage, drive temperature, fault code, and operating status
 - A physical maintenance-inhibit input that forces the pump to stop
+- Four configurable, independently enabled daily RPM schedule blocks
+- A configurable schedule end time, master enable, and manual override
+- A 20x4 LCD status display, local web interface, and Wi-Fi fallback portal
 
 ## Compatibility
 
@@ -32,7 +35,13 @@ external_components:
 
 For a stable installation, replace `main` with a release tag after selecting a tested release.
 
-See [`example.yaml`](example.yaml) for the complete controller configuration, including the 20x4 PCF8574 LCD on GPIO5/GPIO6 at I2C address `0x27`. Adjust the pins or address if your hardware differs. Keep Wi-Fi credentials, API keys, and OTA passwords in the Home Assistant ESPHome `secrets.yaml` file.
+See [`example.yaml`](example.yaml) for the complete controller configuration, including scheduling and the 20x4 PCF8574 LCD on GPIO5/GPIO6 at I2C address `0x27`. Adjust the pins or address if your hardware differs. Define `wifi_ssid`, `wifi_password`, and `fallback_password` in the Home Assistant ESPHome `secrets.yaml` file.
+
+The schedule uses the Home Assistant time source with the `America/New_York`
+timezone. Change the timezone in the YAML if the controller is installed
+elsewhere. Schedule settings are stored on the ESP32 and continue to run after
+Home Assistant disconnects, provided the controller has synchronized its clock
+since boot.
 
 ## Gazoodle original-code trial
 
