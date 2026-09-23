@@ -54,7 +54,9 @@ modbus:
 centuryvspump:
   id: pool_pump
   modbus_id: pump_bus
-  address: 0x15
+  # Field-test assumption: the installed older motor reports Modbus slave 1.
+  # Keep the Hayward controller disconnected so only one master is on the bus.
+  address: 0x01
 
 switch:
   - platform: centuryvspump
